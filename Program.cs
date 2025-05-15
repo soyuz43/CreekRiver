@@ -67,6 +67,13 @@ app.MapGet("/api/campsites/{id}", (CreekRiverDbContext db, int id) =>
 
     return campsite is null ? Results.NotFound() : Results.Ok(campsite);
 });
+// POST /api/campsites
+app.MapPost("/api/campsites", (CreekRiverDbContext db, Campsite campsite) =>
+{
+    db.Campsites.Add(campsite);
+    db.SaveChanges();
+    return Results.Created($"/api/campsites/{campsite.Id}", campsite);
+});
 
 
 app.Run();
