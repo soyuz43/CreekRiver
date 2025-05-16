@@ -67,13 +67,23 @@ app.MapGet("/api/campsites/{id}", (CreekRiverDbContext db, int id) =>
 
     return campsite is null ? Results.NotFound() : Results.Ok(campsite);
 });
-// POST /api/campsites
+
+
+// POST /api/campsites — Create a campsite, always visible by default
 app.MapPost("/api/campsites", (CreekRiverDbContext db, Campsite campsite) =>
 {
+    bool campsiteExists = db.Campsites.Any(c => c.Nickname == campsite.Nickname);
+    if (campsiteExists)
+    {
+        return Results.BadRequest();
+    }
+
+    campsite.IsVisible = true;
     db.Campsites.Add(campsite);
     db.SaveChanges();
     return Results.Created($"/api/campsites/{campsite.Id}", campsite);
 });
+
 
 // DELETE /api/campsites/{id}
 app.MapDelete("/api/campsites/{id}", (CreekRiverDbContext db, int id) =>
@@ -88,6 +98,26 @@ app.MapDelete("/api/campsites/{id}", (CreekRiverDbContext db, int id) =>
     db.SaveChanges();
     return Results.NoContent();
 });
+
+
+
+
+
+// ! Campsite Visibility
+// PATCH /api/campsites/{id}/visible — Toggle visibility via a DTO
+app.MapPatch("/api/campsites/{id}/visible", (CreekRiverDbContext db, int id, CampsiteVisibleDTO campsiteVisibleDTO) =>
+{
+    var campsiteToUpdate = db.Campsites.SingleOrDefault(c => c.Id == id);
+    if (campsiteToUpdate is null)
+    {
+        return Results.NotFound();
+    }
+
+    campsiteToUpdate.IsVisible = campsiteVisibleDTO.IsVisible;
+    db.SaveChanges();
+    return Results.NoContent();
+});
+
 
 // GET /api/reservations
 app.MapGet("/api/reservations", (CreekRiverDbContext db) =>
