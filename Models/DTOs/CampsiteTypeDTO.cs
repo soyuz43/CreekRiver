@@ -1,4 +1,4 @@
-namespace CreekRiver.DTOs;
+namespace CreekRiver.Models.DTOs;
 
 public class CampsiteTypeDTO
 {
