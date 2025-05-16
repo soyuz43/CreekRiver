@@ -42,7 +42,7 @@ app.MapGet("/api/campsites", (CreekRiverDbContext db) =>
         })
         .ToList();
 });
-
+ 
 
 // GET /api/campsites/{id}
 app.MapGet("/api/campsites/{id}", (CreekRiverDbContext db, int id) =>
@@ -73,6 +73,20 @@ app.MapPost("/api/campsites", (CreekRiverDbContext db, Campsite campsite) =>
     db.Campsites.Add(campsite);
     db.SaveChanges();
     return Results.Created($"/api/campsites/{campsite.Id}", campsite);
+});
+
+// DELETE /api/campsites/{id}
+app.MapDelete("/api/campsites/{id}", (CreekRiverDbContext db, int id) =>
+{
+    Campsite? campsite = db.Campsites.SingleOrDefault(c => c.Id == id);
+    if (campsite == null)
+    {
+        return Results.NotFound();
+    }
+
+    db.Campsites.Remove(campsite);
+    db.SaveChanges();
+    return Results.NoContent();
 });
 
 
